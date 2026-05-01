@@ -4,6 +4,7 @@
 import os
 import time
 import numpy as np
+from datetime import datetime
 
 from humanoid_rl_env import HumanoidRLEnv
 
@@ -134,9 +135,19 @@ def main():
             env = HumanoidRLEnv()
             model = PPO.load("./models/humanoid_torque_final.zip", env=env)
             print("\n继续训练 1,000,000 步...")
+
+            # 备份原模型（带时间戳）
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_path = f"./models/humanoid_torque_backup_{timestamp}.zip"
+            os.rename("./models/humanoid_torque_final.zip", backup_path)
+            print(f"原模型已备份: {backup_path}")
+
+            # 继续训练
             model.learn(total_timesteps=1_000_000, reset_num_timesteps=False)
             model.save("./models/humanoid_torque_final")
-            print("完成!")
+            print(f"训练完成! 模型已保存到: ./models/humanoid_torque_final.zip")
+        else:
+            print("未找到模型")
 
 if __name__ == "__main__":
     main()
